@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ronel – Fleurs · Art de vivre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#6b7263;
+  --cream:#f2ede2;
+  --ink:#3d4437;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%;margin:0}
+body{
+  background:var(--bg);
+  color:var(--cream);
+  font-family:"Jost","Century Gothic","Futura",sans-serif;
+  font-weight:300;
+  overflow-x:hidden;
+}
+main{
+  min-height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:48px 24px 160px;
+  text-align:center;
+  position:relative;z-index:1;
+}
+h1{
+  margin:0;
+  font-weight:300;
+  font-size:clamp(64px,18vw,104px);
+  letter-spacing:.06em;
+  line-height:1;
+}
+.tag{
+  margin:14px 0 0;
+  font-size:clamp(15px,4vw,18px);
+  letter-spacing:.12em;
+}
+.lead{
+  margin:56px 0 24px;
+  font-size:16px;
+  opacity:.85;
+}
+.actions{
+  display:flex;flex-direction:column;gap:14px;
+  width:100%;max-width:320px;
+}
+.btn{
+  display:block;
+  padding:16px 24px;
+  border-radius:999px;
+  border:1px solid var(--cream);
+  color:var(--cream);
+  text-decoration:none;
+  font:400 16px/1 "Jost",sans-serif;
+  letter-spacing:.04em;
+  transition:background .25s,color .25s,transform .25s;
+}
+.btn.primary{background:var(--cream);color:var(--ink)}
+.btn:hover{background:var(--cream);color:var(--ink)}
+.btn.primary:hover{background:transparent;color:var(--cream)}
+.btn:active{transform:scale(.98)}
+.btn:focus-visible{outline:2px solid var(--cream);outline-offset:4px}
+.flower{
+  position:fixed;left:-8%;bottom:-6%;
+  width:clamp(220px,46vw,380px);height:auto;
+  z-index:0;pointer-events:none;
+}
+@media (prefers-reduced-motion:reduce){.btn{transition:none}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Ronel</h1>
+  <p class="tag">Fleurs &nbsp;-&nbsp; Art de vivre</p>
+
+  <p class="lead">Retrouvez-nous en ligne</p>
+  <div class="actions">
+    <a class="btn primary" href="https://www.instagram.com/ronelboutique/" target="_blank" rel="noopener">Suivre sur Instagram</a>
+    <a class="btn" href="https://www.google.com/search?hl=fr-FR&gl=fr&q=Ronel+Boutique,+8+Rue+de+Vanves,+92140+Clamart&ludocid=10172060272163606797&lsig=AB86z5VtOmx8phenA3sUZ2qZ-xO9#lrd=0x47e67b161ced4f69:0x8d2a6aec742cd10d,3" target="_blank" rel="noopener">Laisser un avis Google</a>
+  </div>
+</main>
+
+<svg class="flower" viewBox="-110 -110 220 220" aria-hidden="true">
+  <defs>
+    <path id="petal" d="M0 0 C-30 -18 -36 -62 -4 -92 C0 -96 4 -96 8 -90 C34 -62 30 -18 0 0Z"/>
+  </defs>
+  <g fill="#f2ede2" stroke="#3d4437" stroke-width="1" stroke-linejoin="round">
+    <use href="#petal" transform="rotate(-8)"/>
+    <use href="#petal" transform="rotate(48)"/>
+    <use href="#petal" transform="rotate(100)"/>
+    <use href="#petal" transform="rotate(152)"/>
+    <use href="#petal" transform="rotate(205)"/>
+    <use href="#petal" transform="rotate(258)"/>
+    <use href="#petal" transform="rotate(310)"/>
+  </g>
+  <g stroke="#3d4437" stroke-width=".7" fill="none" opacity=".55">
+    <path d="M-2 -20 C-6 -45 -4 -70 -2 -84"/>
+    <path d="M14 -16 C30 -38 44 -56 52 -66" transform="rotate(8)"/>
+    <path d="M-14 -16 C-30 -38 -44 -56 -52 -66" transform="rotate(-6)"/>
+  </g>
+  <g stroke="#3d4437" stroke-width="1" fill="#3d4437">
+    <g id="stamens">
+      <line x1="0" y1="0" x2="0" y2="-26"/><circle cx="0" cy="-27" r="1.8"/>
+    </g>
+    <use href="#stamens" transform="rotate(30)"/>
+    <use href="#stamens" transform="rotate(60)"/>
+    <use href="#stamens" transform="rotate(90)"/>
+    <use href="#stamens" transform="rotate(120)"/>
+    <use href="#stamens" transform="rotate(150)"/>
+    <use href="#stamens" transform="rotate(180)"/>
+    <use href="#stamens" transform="rotate(210)"/>
+    <use href="#stamens" transform="rotate(240)"/>
+    <use href="#stamens" transform="rotate(270)"/>
+    <use href="#stamens" transform="rotate(300)"/>
+    <use href="#stamens" transform="rotate(330)"/>
+    <circle r="11"/>
+  </g>
+</svg>
+</body>
+</html>
