@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0e0d0c">
+<meta name="theme-color" content="#000000">
 <title>Le Diable au Corps – Tatouage · Piercing</title>
+<link rel="icon" href="LeDiableAuCorps-logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Jost:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@800&family=Jost:wght@300;400&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0e0d0c;
-  --cream:#efe6d5;
-  --red:#b3261e;
+  --bg:#000;
+  --white:#fff;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
@@ -21,7 +21,7 @@
 html,body{height:100%;margin:0}
 body{
   background:var(--bg);
-  color:var(--cream);
+  color:var(--white);
   font-family:"Jost","Century Gothic","Futura",sans-serif;
   font-weight:300;
   overflow-x:hidden;
@@ -29,36 +29,26 @@ body{
 main{
   min-height:100%;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:48px 24px 190px;
+  padding:48px 24px;
   text-align:center;
-  position:relative;z-index:1;
 }
-.pre{
-  margin:0;
-  font-size:clamp(15px,4vw,18px);
-  letter-spacing:.42em;text-indent:.42em;
-  text-transform:uppercase;
-  color:var(--red);
+.logo{
+  width:clamp(150px,44vw,210px);height:auto;aspect-ratio:1;
+  border-radius:50%;
+  display:block;
 }
 h1{
-  margin:6px 0 0;
-  font-family:"Pirata One","UnifrakturCook","Old English Text MT",Georgia,serif;
-  font-weight:400;
-  font-size:clamp(58px,17vw,104px);
-  letter-spacing:.02em;
-  line-height:.95;
+  margin:30px 0 0;
+  font-family:"Playfair Display","Didot","Bodoni MT",Georgia,serif;
+  font-weight:800;
+  font-size:clamp(34px,10.5vw,56px);
+  letter-spacing:.01em;
+  line-height:1.05;
 }
-.rule{
-  display:flex;align-items:center;gap:12px;
-  margin:22px 0 0;
-  color:var(--red);
-}
-.rule::before,.rule::after{content:"";width:44px;height:1px;background:currentColor}
-.rule svg{width:14px;height:14px;display:block}
 .tag{
-  margin:18px 0 0;
-  font-size:clamp(14px,3.8vw,17px);
-  letter-spacing:.24em;text-indent:.24em;
+  margin:16px 0 0;
+  font-size:clamp(13px,3.6vw,16px);
+  letter-spacing:.3em;text-indent:.3em;
   text-transform:uppercase;
 }
 .place{
@@ -67,7 +57,7 @@ h1{
   opacity:.6;
 }
 .lead{
-  margin:48px 0 22px;
+  margin:44px 0 22px;
   font-size:16px;
   opacity:.85;
 }
@@ -78,34 +68,26 @@ h1{
 .btn{
   display:block;
   padding:16px 24px;
-  border-radius:4px;
-  border:1px solid var(--cream);
-  color:var(--cream);
+  border-radius:999px;
+  border:1px solid var(--white);
+  color:var(--white);
   text-decoration:none;
   font:400 16px/1 "Jost",sans-serif;
   letter-spacing:.06em;
-  transition:background .25s,color .25s,border-color .25s,transform .25s;
+  transition:background .25s,color .25s,transform .25s;
 }
-.btn.primary{background:var(--red);border-color:var(--red)}
-.btn:hover{background:var(--cream);border-color:var(--cream);color:var(--bg)}
+.btn.primary{background:var(--white);color:var(--bg)}
+.btn:hover{background:var(--white);color:var(--bg)}
+.btn.primary:hover{background:transparent;color:var(--white)}
 .btn:active{transform:scale(.98)}
-.btn:focus-visible{outline:2px solid var(--cream);outline-offset:4px}
-.flash{
-  position:fixed;right:2%;bottom:-2%;
-  width:clamp(170px,40vw,300px);height:auto;
-  z-index:0;pointer-events:none;
-  transform:rotate(-10deg);
-}
+.btn:focus-visible{outline:2px solid var(--white);outline-offset:4px}
 @media (prefers-reduced-motion:reduce){.btn{transition:none}}
 </style>
 </head>
 <body>
 <main>
-  <p class="pre">Le</p>
-  <h1>Diable<br>au Corps</h1>
-  <div class="rule" aria-hidden="true">
-    <svg viewBox="-10 -10 20 20"><path d="M0-9 9 0 0 9-9 0Z" fill="currentColor"/></svg>
-  </div>
+  <img class="logo" src="LeDiableAuCorps-logo.png" width="480" height="480" alt="Logo Le Diable au Corps">
+  <h1>Le Diable<br>au Corps</h1>
   <p class="tag">Tatouage · Piercing</p>
   <p class="place">Boulogne-Billancourt</p>
 
@@ -115,20 +97,5 @@ h1{
     <a class="btn" href="https://search.google.com/local/writereview?placeid=ChIJP-i73pl75kcR1zgXc6smb3c" target="_blank" rel="noopener">Laisser un avis Google</a>
   </div>
 </main>
-
-<!-- Motif façon flash de tatouage : cœur à cornes et queue de diable -->
-<svg class="flash" viewBox="-120 -125 240 250" aria-hidden="true">
-  <g stroke="#efe6d5" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M10 62 C40 96 92 92 96 52 C99 22 70 20 68 44 C66 62 86 62 84 50" fill="none"/>
-    <path d="M84 50 L74 38 L98 34 Z" fill="#b3261e"/>
-    <path d="M-52 -58 C-74 -74 -80 -98 -66 -112 C-62 -92 -48 -82 -30 -74 Z" fill="#efe6d5"/>
-    <path d="M52 -58 C74 -74 80 -98 66 -112 C62 -92 48 -82 30 -74 Z" fill="#efe6d5"/>
-    <path d="M0 78 C-96 20 -92 -78 -40 -78 C-18 -78 -4 -62 0 -46 C4 -62 18 -78 40 -78 C92 -78 96 20 0 78 Z" fill="#b3261e"/>
-  </g>
-  <g stroke="#efe6d5" stroke-width="2" fill="none" stroke-linecap="round" opacity=".7">
-    <path d="M-62 -34 C-64 -52 -54 -64 -40 -66"/>
-    <path d="M-8 52 C-34 34 -52 12 -58 -8"/>
-  </g>
-</svg>
 </body>
 </html>
