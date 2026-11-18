@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#2b3150">
+<title>Pixel Loop</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:radial-gradient(circle at 50% 0,#3a4170,#1d2035);font-family:system-ui,-apple-system,sans-serif;color:#fff;overflow:hidden;touch-action:manipulation;user-select:none}
+#bar{display:flex;align-items:center;justify-content:space-between;max-width:420px;margin:0 auto;padding:8px 12px}
+#lvl{background:linear-gradient(#ff5b5b,#c92b37);padding:6px 18px;border-radius:14px;font-weight:900;font-size:18px;box-shadow:0 3px 0 #7d1520}
+.b{background:linear-gradient(#ff5b5b,#c92b37);border:0;color:#fff;width:42px;height:42px;border-radius:50%;font-size:20px;box-shadow:0 3px 0 #7d1520;cursor:pointer}
+#c{display:block;margin:0 auto;touch-action:none}
+#ov{position:fixed;inset:0;background:rgba(10,12,25,.7);display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;text-align:center}
+#t{font-size:40px;font-weight:900;text-shadow:0 4px 0 #0006}
+#m{opacity:.85;font-size:17px}
+#btn{margin-top:14px;font-size:20px;font-weight:800;padding:14px 34px;border:0;border-radius:16px;color:#fff;background:linear-gradient(#5fd35b,#2f9a35);box-shadow:0 4px 0 #1d6422;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="bar"><button class="b" id="rst" title="Recommencer">↻</button><div id="lvl">Niveau 1</div><button class="b" id="snd" title="Son">🔊</button></div>
+<canvas id="c"></canvas>
+<div id="ov"><div id="t"></div><div id="m"></div><button id="btn"></button></div>
+<script>
+const PHOTOS=[{"N": 36, "colors": ["#b17d79", "#131317", "#62312d", "#755252", "#976264", "#a36f14", "#52070c", "#e3c38f", "#868689", "#fcf1ad", "#bd9f93", "#292c33"], "grid": [[7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 10, 0, 0, 0, 0, 10, 10, 10, 10, 10, 10, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3, 3], [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 7, 10, 3, 3], [9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 7, 7, 10, 10, 10, 8, 0, 0, 4], [9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 7, 10, 10, 10, 8, 10, 10, 10, 0, 0, 0, 0, 0, 0, 4], [9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 7, 7, 10, 10, 0, 8, 8, 8, 8, 8, 8, 8, 10, 10, 0, 4, 3, 3, 3, 3, 3, 2], [9, 9, 9, 9, 9, 9, 7, 7, 10, 10, 10, 0, 10, 10, 10, 10, 0, 8, 8, 8, 8, 8, 8, 8, 8, 0, 10, 0, 3, 3, 3, 4, 4, 3, 3, 2], [7, 10, 10, 10, 10, 10, 7, 10, 8, 8, 8, 7, 10, 10, 10, 7, 7, 10, 8, 8, 8, 8, 10, 0, 4, 0, 0, 3, 4, 0, 0, 0, 0, 0, 4, 3], [10, 10, 10, 10, 0, 8, 0, 0, 10, 10, 7, 10, 10, 10, 10, 10, 10, 10, 10, 10, 0, 0, 0, 0, 0, 0, 4, 4, 10, 10, 0, 0, 0, 0, 0, 3], [8, 8, 8, 8, 8, 10, 0, 4, 4, 10, 7, 10, 10, 10, 0, 0, 10, 10, 7, 0, 4, 3, 3, 3, 3, 4, 4, 10, 10, 10, 10, 0, 0, 0, 0, 4], [8, 8, 8, 8, 0, 10, 0, 0, 0, 10, 10, 10, 0, 0, 0, 0, 8, 10, 0, 10, 10, 0, 0, 4, 3, 3, 4, 10, 10, 10, 4, 4, 4, 4, 4, 4], [3, 4, 0, 8, 10, 0, 0, 0, 4, 10, 10, 0, 0, 4, 4, 4, 4, 4, 7, 10, 10, 0, 0, 0, 4, 3, 4, 10, 10, 4, 4, 4, 4, 4, 4, 4], [3, 3, 0, 0, 0, 3, 4, 4, 4, 0, 0, 4, 0, 4, 4, 4, 4, 0, 7, 10, 0, 0, 0, 0, 4, 3, 3, 0, 0, 4, 4, 3, 3, 4, 4, 0], [8, 3, 0, 10, 4, 4, 3, 3, 3, 4, 10, 0, 0, 4, 4, 4, 3, 0, 10, 0, 0, 0, 0, 4, 4, 3, 3, 4, 0, 4, 4, 4, 4, 0, 0, 0], [3, 3, 4, 0, 4, 4, 0, 3, 3, 3, 0, 0, 0, 4, 4, 4, 3, 0, 0, 4, 0, 0, 4, 4, 4, 3, 2, 4, 0, 0, 0, 0, 0, 0, 0, 0], [11, 11, 4, 0, 3, 4, 4, 3, 2, 2, 4, 0, 4, 4, 4, 3, 3, 10, 0, 3, 0, 4, 3, 3, 3, 3, 2, 10, 0, 0, 0, 4, 0, 0, 0, 4], [11, 11, 3, 4, 3, 4, 3, 2, 11, 11, 3, 0, 0, 4, 4, 3, 2, 7, 10, 0, 10, 4, 4, 4, 4, 3, 3, 0, 4, 4, 4, 4, 4, 4, 4, 4], [11, 2, 3, 3, 3, 4, 3, 11, 11, 11, 2, 2, 4, 4, 3, 2, 2, 10, 10, 10, 10, 4, 4, 0, 4, 4, 4, 4, 3, 3, 3, 4, 4, 3, 3, 4], [11, 11, 2, 2, 2, 2, 2, 11, 11, 11, 11, 2, 2, 3, 2, 2, 2, 10, 0, 0, 4, 3, 4, 4, 4, 3, 2, 4, 4, 4, 4, 4, 4, 3, 4, 4], [11, 11, 2, 2, 2, 2, 2, 11, 11, 11, 11, 2, 2, 2, 3, 2, 2, 0, 0, 10, 0, 4, 4, 4, 4, 3, 2, 3, 3, 4, 10, 8, 3, 4, 4, 4], [1, 1, 6, 2, 2, 2, 6, 11, 11, 11, 11, 11, 2, 2, 2, 2, 2, 0, 4, 0, 4, 4, 3, 3, 4, 3, 2, 11, 3, 3, 4, 4, 4, 4, 4, 4], [1, 1, 1, 2, 2, 2, 11, 11, 11, 11, 11, 11, 2, 2, 2, 2, 2, 3, 0, 0, 0, 4, 3, 3, 4, 3, 2, 6, 11, 4, 4, 4, 4, 4, 4, 4], [1, 1, 1, 6, 2, 6, 11, 11, 11, 11, 11, 11, 2, 2, 2, 2, 2, 11, 0, 0, 0, 4, 4, 3, 3, 2, 2, 2, 11, 11, 4, 0, 0, 0, 4, 3], [1, 1, 1, 6, 6, 6, 1, 11, 11, 11, 1, 11, 2, 2, 2, 11, 11, 0, 10, 0, 0, 4, 4, 3, 2, 2, 2, 2, 1, 2, 5, 4, 4, 4, 3, 11], [1, 1, 1, 3, 6, 6, 1, 11, 11, 1, 1, 11, 2, 2, 11, 11, 11, 8, 10, 0, 4, 3, 3, 3, 2, 2, 2, 11, 1, 2, 2, 2, 2, 2, 11, 11], [1, 1, 1, 6, 6, 6, 1, 11, 11, 1, 1, 2, 2, 11, 11, 11, 11, 3, 10, 10, 0, 4, 3, 3, 3, 3, 2, 1, 1, 1, 3, 11, 2, 2, 2, 6], [1, 1, 1, 6, 6, 6, 1, 1, 1, 1, 1, 2, 11, 11, 11, 11, 11, 11, 8, 10, 0, 4, 4, 3, 4, 3, 11, 11, 11, 11, 4, 2, 5, 2, 11, 2], [1, 1, 1, 6, 6, 6, 1, 1, 1, 1, 1, 2, 5, 2, 11, 11, 11, 11, 3, 10, 10, 4, 4, 4, 4, 3, 11, 11, 8, 3, 4, 2, 5, 1, 3, 3], [1, 1, 1, 6, 6, 6, 1, 1, 1, 1, 1, 5, 5, 5, 5, 2, 11, 11, 11, 10, 10, 4, 4, 4, 4, 2, 11, 1, 8, 10, 4, 4, 3, 3, 3, 2], [1, 1, 1, 6, 6, 6, 1, 1, 1, 1, 2, 5, 2, 5, 5, 5, 2, 11, 11, 8, 10, 8, 4, 4, 4, 11, 1, 1, 3, 8, 4, 4, 5, 0, 3, 11], [1, 1, 1, 6, 6, 6, 1, 1, 1, 1, 5, 11, 11, 5, 5, 5, 5, 2, 11, 11, 10, 10, 3, 3, 3, 11, 1, 1, 11, 3, 3, 5, 5, 0, 2, 5], [1, 1, 1, 6, 6, 6, 1, 1, 1, 1, 2, 11, 11, 11, 5, 5, 5, 5, 2, 11, 8, 8, 8, 11, 2, 1, 1, 1, 1, 3, 8, 3, 5, 5, 5, 5], [1, 1, 1, 6, 6, 6, 1, 1, 1, 11, 11, 11, 11, 1, 1, 2, 5, 5, 5, 11, 11, 8, 8, 11, 1, 1, 1, 1, 1, 11, 11, 3, 5, 5, 5, 5], [1, 1, 1, 6, 6, 1, 1, 1, 1, 11, 11, 11, 1, 1, 1, 1, 2, 5, 5, 5, 1, 8, 8, 8, 1, 1, 1, 1, 1, 1, 11, 11, 3, 4, 2, 1], [1, 1, 1, 6, 6, 1, 1, 1, 1, 11, 11, 11, 1, 1, 1, 1, 2, 5, 5, 5, 2, 11, 8, 8, 11, 1, 1, 1, 1, 1, 11, 11, 3, 2, 1, 11], [1, 1, 1, 6, 6, 1, 1, 1, 1, 11, 11, 11, 1, 1, 11, 1, 2, 5, 5, 5, 5, 11, 8, 8, 8, 1, 1, 1, 1, 1, 1, 11, 11, 11, 11, 11], [1, 1, 6, 6, 6, 1, 1, 1, 1, 11, 11, 1, 1, 11, 11, 1, 2, 5, 5, 5, 5, 5, 11, 8, 8, 11, 1, 1, 1, 1, 1, 1, 11, 11, 11, 11]]}, {"N": 36, "colors": ["#ebe8d3", "#e7bea5", "#a98368", "#413831", "#926f55", "#bd9e8a", "#929592", "#787874", "#bbbfbc", "#725b49", "#533e42", "#332c25"], "grid": [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 5, 5, 0, 0, 1, 4, 4, 4, 4, 7, 9, 9], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 2, 2, 4, 4, 7, 7, 9, 9], [0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5, 2, 2, 2, 4, 4, 4, 4, 7, 9, 7], [0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5, 2, 2, 4, 4, 4, 4, 9, 7, 9, 7], [0, 8, 0, 0, 0, 0, 0, 8, 8, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 2, 2, 4, 4, 4, 4, 9, 9, 9, 9], [0, 8, 5, 5, 5, 1, 2, 2, 2, 2, 2, 5, 5, 5, 5, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 2, 2, 2, 6, 7, 7, 7, 7, 7, 7, 7], [6, 6, 6, 6, 7, 7, 2, 4, 4, 2, 5, 2, 5, 5, 1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 2, 2, 2, 2, 7, 7, 7, 7, 7, 7, 7, 9], [6, 6, 6, 6, 7, 4, 4, 4, 2, 2, 5, 1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 2, 2, 6, 6, 7, 6, 7, 6, 7, 6, 7, 7, 9], [9, 9, 9, 9, 2, 5, 8, 8, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 2, 7, 7, 7, 7, 7, 7, 7], [6, 5, 8, 8, 0, 0, 0, 0, 1, 5, 1, 2, 2, 2, 5, 5, 5, 1, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 9, 4, 7, 9], [8, 8, 0, 8, 0, 0, 0, 1, 5, 4, 2, 5, 5, 5, 5, 5, 2, 1, 5, 2, 2, 4, 4, 4, 4, 4, 4, 9, 9, 9, 9, 9, 9, 9, 9, 9], [8, 8, 0, 8, 0, 0, 0, 5, 4, 2, 5, 5, 5, 5, 5, 5, 5, 2, 5, 6, 2, 2, 2, 7, 4, 4, 4, 9, 9, 9, 9, 9, 9, 9, 10, 10], [8, 8, 0, 0, 0, 0, 0, 4, 4, 2, 5, 2, 7, 2, 5, 5, 5, 2, 1, 1, 1, 5, 5, 6, 6, 6, 6, 6, 7, 7, 9, 9, 9, 9, 10, 10], [8, 8, 8, 8, 8, 0, 0, 4, 4, 2, 2, 7, 7, 4, 5, 5, 7, 2, 5, 4, 4, 4, 2, 5, 1, 5, 6, 8, 8, 6, 6, 6, 7, 7, 9, 9], [8, 8, 8, 8, 8, 8, 8, 4, 4, 5, 2, 7, 7, 4, 5, 7, 7, 7, 2, 4, 4, 4, 4, 4, 2, 2, 2, 5, 8, 8, 6, 6, 6, 7, 7, 7], [8, 8, 8, 8, 8, 8, 5, 2, 5, 5, 5, 2, 2, 2, 5, 2, 7, 4, 4, 4, 2, 2, 2, 9, 9, 9, 9, 4, 8, 6, 6, 6, 6, 7, 7, 7], [8, 8, 8, 8, 8, 8, 5, 2, 2, 2, 5, 2, 2, 2, 2, 2, 2, 2, 9, 4, 4, 2, 2, 4, 9, 9, 9, 9, 6, 6, 6, 7, 7, 7, 7, 7], [8, 6, 6, 8, 8, 8, 8, 2, 2, 2, 2, 4, 2, 2, 2, 4, 2, 2, 9, 4, 2, 4, 2, 2, 2, 9, 9, 9, 9, 6, 6, 7, 7, 7, 7, 7], [6, 6, 6, 6, 6, 6, 8, 6, 2, 2, 2, 4, 2, 5, 5, 4, 4, 4, 9, 4, 4, 4, 4, 2, 2, 2, 2, 4, 10, 10, 7, 7, 7, 7, 7, 7], [6, 6, 6, 6, 6, 6, 6, 6, 4, 2, 2, 2, 2, 2, 4, 4, 2, 4, 9, 4, 2, 4, 2, 2, 2, 2, 2, 4, 10, 10, 3, 7, 7, 7, 7, 7], [6, 6, 6, 6, 6, 6, 6, 6, 4, 4, 2, 2, 2, 2, 2, 2, 2, 6, 4, 4, 4, 4, 2, 2, 2, 2, 2, 9, 10, 10, 3, 3, 7, 7, 7, 7], [6, 6, 6, 6, 6, 6, 6, 9, 4, 4, 4, 2, 2, 2, 2, 4, 6, 6, 4, 9, 9, 4, 2, 2, 2, 2, 2, 9, 3, 10, 10, 3, 9, 7, 7, 7], [7, 6, 7, 7, 6, 6, 10, 10, 4, 4, 4, 9, 4, 4, 4, 7, 6, 6, 7, 9, 4, 4, 2, 2, 2, 2, 4, 9, 3, 10, 10, 10, 10, 7, 7, 7], [7, 7, 7, 7, 6, 9, 3, 3, 10, 4, 4, 4, 4, 9, 9, 9, 7, 7, 7, 4, 4, 4, 2, 2, 2, 4, 2, 10, 3, 3, 10, 3, 3, 10, 9, 10], [7, 7, 7, 6, 2, 3, 3, 3, 3, 9, 4, 4, 4, 4, 9, 3, 10, 6, 7, 7, 4, 4, 2, 4, 4, 2, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3], [7, 7, 5, 5, 9, 3, 3, 3, 3, 3, 4, 2, 4, 4, 9, 10, 3, 4, 5, 7, 10, 9, 4, 2, 2, 2, 9, 10, 3, 3, 11, 11, 11, 11, 11, 3], [7, 7, 9, 9, 9, 3, 3, 3, 3, 3, 10, 9, 4, 4, 9, 9, 3, 3, 9, 4, 9, 3, 3, 9, 4, 9, 3, 3, 3, 3, 11, 11, 11, 11, 11, 11], [10, 10, 10, 10, 10, 10, 11, 11, 3, 3, 10, 3, 9, 4, 4, 9, 9, 3, 3, 10, 10, 3, 3, 3, 3, 3, 3, 3, 3, 3, 11, 11, 11, 11, 11, 11], [10, 10, 9, 10, 3, 10, 3, 11, 11, 3, 10, 10, 10, 9, 9, 9, 9, 3, 3, 10, 10, 9, 3, 3, 3, 3, 11, 11, 3, 11, 11, 11, 11, 11, 11, 11], [10, 9, 9, 10, 10, 3, 3, 3, 3, 10, 10, 10, 10, 9, 2, 2, 2, 10, 3, 10, 10, 10, 3, 3, 3, 3, 11, 11, 3, 11, 11, 11, 11, 11, 11, 11], [9, 9, 10, 10, 10, 3, 3, 3, 10, 10, 10, 10, 10, 10, 4, 2, 2, 9, 9, 10, 10, 3, 3, 3, 11, 11, 11, 3, 3, 11, 11, 11, 11, 11, 11, 11], [4, 9, 10, 10, 10, 3, 3, 10, 10, 9, 10, 10, 10, 10, 4, 2, 2, 4, 3, 3, 3, 3, 3, 11, 11, 11, 11, 3, 11, 11, 11, 11, 11, 11, 11, 11], [10, 10, 10, 10, 10, 10, 3, 10, 10, 10, 10, 10, 10, 10, 9, 2, 2, 4, 10, 10, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11], [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 2, 2, 2, 4, 10, 10, 3, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11], [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 2, 2, 2, 10, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11], [10, 10, 10, 10, 10, 10, 10, 10, 10, 3, 10, 10, 3, 10, 10, 4, 2, 2, 2, 10, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 3, 11, 11, 11]]}, {"N": 36, "colors": ["#682339", "#8c6055", "#674e48", "#3e1929", "#abb6bd", "#c88018", "#a87b6c", "#8c7d83", "#ac6412", "#a79c9e", "#c0c9ce", "#d5dde2"], "grid": [[11, 11, 11, 11, 11, 11, 10, 11, 10, 10, 10, 10, 10, 10, 10, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4], [11, 11, 11, 11, 11, 11, 11, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 10], [11, 11, 11, 11, 11, 11, 11, 10, 10, 10, 10, 10, 10, 10, 10, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 10, 10, 4], [11, 11, 11, 11, 11, 11, 11, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 10, 10, 10, 4, 4], [11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 10, 10, 10, 10, 10, 10, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4], [11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 10, 10, 10, 10, 10, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 10, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4], [11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 10, 10, 10, 10, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4], [11, 11, 11, 11, 11, 11, 11, 11, 11, 10, 4, 4, 4, 10, 10, 10, 10, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4], [11, 11, 11, 11, 11, 10, 9, 9, 9, 4, 9, 9, 9, 4, 10, 10, 10, 10, 10, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4], [11, 11, 11, 11, 4, 7, 9, 7, 7, 7, 7, 7, 7, 9, 4, 10, 10, 10, 10, 10, 4, 10, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4], [10, 11, 11, 10, 7, 1, 1, 1, 2, 2, 2, 2, 1, 7, 9, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4], [10, 10, 10, 7, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 7, 4, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 4, 4, 4, 4, 4], [10, 10, 9, 2, 2, 2, 1, 6, 6, 1, 1, 1, 2, 2, 1, 10, 11, 11, 10, 10, 10, 11, 11, 10, 10, 10, 11, 11, 11, 11, 10, 10, 10, 4, 4, 4], [10, 10, 7, 2, 2, 1, 6, 6, 6, 6, 6, 6, 6, 6, 7, 4, 11, 11, 11, 10, 10, 10, 11, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 4], [11, 11, 7, 2, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 4, 11, 11, 11, 10, 4, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4], [11, 11, 7, 2, 1, 6, 6, 1, 2, 2, 1, 6, 6, 6, 6, 9, 11, 11, 11, 10, 9, 4, 10, 4, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 4, 4], [11, 11, 7, 2, 6, 6, 1, 2, 2, 2, 2, 1, 1, 1, 6, 9, 11, 11, 11, 10, 7, 7, 1, 1, 7, 9, 10, 10, 10, 10, 10, 10, 10, 10, 4, 4], [11, 9, 6, 1, 6, 6, 6, 1, 2, 2, 2, 6, 2, 2, 1, 9, 10, 11, 10, 4, 1, 2, 2, 3, 2, 1, 9, 9, 10, 10, 10, 10, 10, 10, 10, 4], [10, 1, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 1, 2, 2, 4, 11, 10, 10, 9, 2, 2, 3, 2, 2, 2, 2, 2, 2, 9, 4, 4, 10, 4, 4, 4], [11, 6, 1, 6, 6, 6, 6, 6, 1, 1, 6, 6, 6, 1, 6, 10, 10, 10, 10, 7, 2, 3, 1, 6, 6, 6, 6, 2, 2, 2, 7, 9, 9, 4, 10, 4], [11, 9, 6, 6, 6, 6, 1, 1, 1, 1, 2, 2, 2, 1, 6, 11, 11, 11, 4, 7, 2, 1, 6, 6, 1, 1, 6, 6, 2, 3, 3, 2, 7, 9, 4, 4], [9, 7, 1, 1, 6, 1, 1, 2, 1, 1, 2, 2, 2, 1, 1, 10, 11, 11, 4, 2, 2, 1, 6, 6, 1, 6, 1, 6, 6, 2, 3, 2, 7, 7, 9, 4], [9, 9, 2, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 2, 1, 10, 11, 11, 4, 2, 2, 2, 1, 6, 2, 2, 6, 6, 6, 6, 2, 2, 2, 7, 4, 4], [9, 7, 7, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 7, 11, 11, 10, 10, 1, 2, 1, 2, 6, 6, 6, 6, 6, 6, 6, 6, 1, 3, 2, 9, 4], [9, 7, 7, 7, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 4, 11, 11, 11, 10, 9, 2, 2, 2, 6, 1, 1, 1, 1, 6, 6, 6, 1, 3, 0, 7, 10], [7, 7, 7, 7, 2, 3, 2, 1, 1, 1, 1, 1, 1, 7, 11, 11, 11, 11, 11, 10, 1, 6, 6, 2, 2, 6, 6, 1, 1, 6, 6, 0, 0, 0, 1, 4], [6, 7, 7, 7, 7, 3, 3, 2, 1, 1, 1, 6, 1, 7, 4, 11, 11, 11, 10, 10, 9, 6, 1, 1, 1, 2, 2, 1, 6, 6, 6, 3, 0, 0, 0, 1], [8, 6, 7, 7, 7, 1, 3, 3, 0, 2, 2, 2, 1, 7, 9, 4, 10, 11, 11, 11, 10, 9, 1, 1, 0, 2, 1, 6, 6, 1, 1, 0, 0, 0, 0, 1], [5, 8, 1, 7, 7, 7, 2, 3, 3, 3, 3, 3, 7, 7, 7, 9, 10, 10, 10, 10, 4, 6, 1, 1, 1, 2, 1, 6, 6, 2, 0, 0, 0, 0, 0, 0], [5, 5, 8, 1, 7, 1, 2, 2, 3, 3, 3, 3, 3, 7, 7, 9, 10, 10, 10, 10, 1, 3, 0, 1, 1, 1, 1, 1, 2, 0, 3, 3, 3, 3, 3, 0], [5, 5, 5, 8, 1, 1, 2, 1, 1, 2, 3, 3, 3, 3, 7, 9, 10, 10, 10, 10, 6, 0, 3, 0, 0, 2, 2, 0, 3, 3, 3, 3, 3, 3, 0, 0], [8, 5, 5, 5, 5, 5, 8, 1, 7, 7, 7, 7, 7, 3, 2, 4, 10, 10, 10, 9, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0], [5, 8, 8, 5, 5, 5, 5, 5, 8, 3, 2, 7, 7, 7, 7, 10, 10, 10, 10, 1, 0, 3, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0], [5, 5, 8, 8, 8, 5, 5, 5, 5, 8, 0, 0, 2, 1, 10, 10, 10, 10, 9, 0, 0, 0, 0, 0, 0, 3, 0, 0, 3, 3, 3, 3, 3, 0, 3, 3], [5, 5, 5, 5, 8, 8, 5, 5, 5, 5, 8, 8, 8, 5, 6, 10, 10, 10, 2, 3, 3, 3, 3, 3, 3, 3, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3], [5, 5, 5, 5, 5, 8, 8, 5, 5, 8, 8, 8, 8, 5, 5, 6, 10, 10, 2, 3, 3, 3, 3, 3, 3, 3, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3]]}, {"N": 36, "colors": ["#f1c091", "#7e2833", "#c07665", "#31201c", "#c6d2d8", "#9a9789", "#cbc3a2", "#e09688", "#a85350", "#aeb0a9", "#ed5c7e", "#e4cfae"], "grid": [[5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 5, 5], [5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 5, 5, 5, 5, 5, 5, 5, 5], [5, 5, 5, 5, 5, 9, 4, 4, 4, 4, 4, 4, 4, 9, 9, 9, 9, 9, 9, 9, 9, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], [5, 5, 5, 5, 5, 9, 4, 4, 4, 4, 4, 9, 9, 9, 9, 9, 9, 9, 9, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 9, 9, 9, 9, 9], [5, 5, 5, 5, 5, 9, 4, 4, 4, 4, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9], [5, 5, 5, 5, 5, 9, 4, 4, 4, 4, 9, 9, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 9, 9, 9, 9, 9], [5, 5, 5, 5, 5, 9, 4, 4, 4, 4, 6, 6, 6, 11, 11, 11, 11, 11, 6, 6, 11, 6, 6, 6, 6, 6, 6, 11, 6, 6, 6, 6, 9, 9, 9, 5], [5, 5, 5, 5, 5, 9, 4, 4, 4, 4, 11, 11, 6, 6, 6, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 6, 6, 9, 9, 9, 5], [5, 5, 5, 5, 5, 9, 4, 4, 4, 11, 6, 2, 1, 3, 3, 1, 5, 11, 11, 11, 11, 11, 11, 11, 0, 0, 11, 11, 11, 11, 6, 6, 9, 9, 9, 9], [5, 5, 5, 5, 5, 9, 4, 4, 4, 6, 1, 3, 3, 3, 3, 3, 3, 8, 6, 11, 11, 11, 11, 0, 0, 0, 0, 11, 11, 11, 6, 6, 9, 9, 9, 9], [9, 5, 5, 5, 5, 6, 4, 4, 6, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 11, 11, 6, 6, 9, 9, 9, 9], [9, 5, 9, 5, 5, 6, 11, 11, 1, 3, 3, 3, 3, 1, 1, 8, 8, 8, 8, 8, 8, 7, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 9, 9, 9, 9], [9, 5, 9, 5, 5, 6, 11, 5, 3, 3, 3, 1, 8, 8, 8, 8, 8, 8, 8, 3, 3, 8, 0, 0, 0, 0, 0, 0, 0, 0, 6, 9, 9, 9, 9, 9], [9, 5, 9, 5, 5, 6, 11, 1, 3, 3, 1, 8, 8, 2, 8, 8, 8, 8, 8, 3, 3, 1, 2, 0, 0, 0, 0, 0, 0, 0, 6, 9, 9, 9, 9, 9], [9, 5, 9, 9, 5, 6, 6, 1, 3, 1, 8, 8, 8, 8, 8, 8, 8, 2, 8, 3, 3, 3, 8, 0, 0, 0, 0, 0, 0, 0, 6, 9, 9, 9, 9, 9], [9, 5, 9, 9, 5, 6, 6, 1, 3, 8, 8, 8, 2, 2, 2, 8, 8, 8, 2, 1, 3, 3, 1, 0, 0, 0, 0, 0, 0, 0, 6, 9, 9, 9, 9, 9], [9, 9, 9, 9, 5, 6, 6, 3, 3, 2, 8, 8, 8, 2, 8, 8, 1, 8, 2, 8, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 6, 9, 9, 9, 9, 9], [9, 9, 9, 9, 9, 6, 11, 1, 1, 8, 1, 3, 8, 2, 1, 1, 3, 8, 8, 2, 8, 1, 1, 0, 0, 0, 0, 0, 0, 0, 6, 9, 5, 5, 9, 9], [9, 9, 9, 9, 9, 6, 11, 5, 5, 7, 8, 8, 2, 8, 8, 8, 8, 8, 8, 2, 7, 1, 2, 0, 11, 11, 0, 0, 0, 0, 6, 9, 9, 9, 9, 9], [9, 9, 9, 9, 9, 6, 11, 6, 6, 7, 2, 2, 7, 8, 2, 8, 8, 8, 2, 7, 0, 1, 0, 11, 11, 11, 11, 11, 11, 11, 6, 9, 9, 9, 9, 6], [9, 9, 9, 9, 9, 11, 11, 6, 11, 7, 2, 2, 7, 2, 2, 8, 2, 8, 2, 7, 0, 1, 11, 11, 11, 11, 11, 11, 11, 11, 11, 6, 6, 6, 6, 4], [9, 4, 9, 9, 9, 11, 6, 6, 6, 2, 2, 2, 2, 2, 2, 8, 2, 2, 2, 7, 2, 3, 0, 0, 0, 0, 11, 11, 11, 11, 11, 11, 11, 4, 4, 4], [9, 4, 9, 4, 9, 11, 6, 6, 6, 2, 8, 2, 2, 2, 2, 2, 2, 2, 2, 7, 8, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 11, 11, 11], [9, 4, 9, 4, 9, 11, 11, 6, 6, 2, 8, 2, 2, 8, 8, 8, 8, 8, 2, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 11], [9, 4, 4, 4, 6, 11, 11, 6, 6, 7, 2, 2, 8, 1, 1, 1, 8, 2, 2, 7, 7, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 11], [9, 4, 4, 4, 6, 11, 11, 11, 7, 7, 2, 7, 2, 2, 8, 2, 2, 2, 2, 2, 2, 7, 2, 10, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 11, 11], [9, 4, 9, 4, 4, 11, 10, 8, 8, 8, 2, 7, 2, 2, 2, 2, 2, 2, 2, 2, 2, 7, 2, 8, 10, 10, 7, 0, 0, 0, 0, 0, 0, 0, 11, 11], [9, 4, 4, 4, 4, 7, 8, 8, 8, 8, 11, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 8, 1, 8, 10, 10, 7, 0, 0, 0, 0, 0, 0, 0, 11], [4, 4, 4, 4, 4, 8, 8, 8, 8, 2, 11, 0, 7, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 8, 10, 10, 10, 10, 7, 0, 0, 0, 0, 0, 11], [4, 4, 4, 4, 2, 8, 10, 8, 8, 2, 11, 11, 0, 7, 7, 7, 7, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 8, 10, 10, 7, 0, 0, 0, 0, 11], [4, 4, 4, 4, 8, 10, 10, 8, 10, 2, 11, 11, 0, 7, 7, 7, 7, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 8, 10, 7, 0, 0, 0, 11], [9, 9, 4, 2, 8, 10, 10, 8, 10, 7, 11, 11, 0, 7, 7, 7, 7, 7, 7, 7, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 8, 0, 0, 0, 0], [4, 9, 4, 8, 10, 10, 10, 8, 8, 0, 11, 0, 7, 7, 7, 7, 7, 7, 7, 7, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0], [4, 4, 7, 10, 10, 10, 10, 8, 8, 0, 0, 7, 7, 7, 7, 7, 7, 7, 7, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 8, 7, 0, 0], [4, 4, 7, 10, 10, 10, 10, 8, 2, 0, 0, 0, 0, 7, 7, 7, 7, 7, 7, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 8, 2, 0, 0], [4, 4, 10, 10, 10, 10, 10, 8, 2, 0, 0, 11, 0, 7, 7, 7, 7, 7, 7, 1, 1, 1, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 8, 0, 0]]}];
+// ===== Générateur de niveaux (partagé avec le jeu) =====
+const PALETTE = [
+  {n:'rouge',  c:'#e8423f'}, {n:'orange', c:'#f39a2b'}, {n:'jaune', c:'#f7d13c'},
+  {n:'vert',   c:'#5cc84a'}, {n:'vertF',  c:'#2f7d32'}, {n:'bleu',  c:'#3d8ef0'},
+  {n:'violet', c:'#9a5ae0'}, {n:'rose',   c:'#f27fb8'}, {n:'blanc', c:'#f1f1f1'},
+  {n:'noir',   c:'#3a3a44'}, {n:'marron', c:'#8a5a34'}, {n:'cyan',  c:'#36c9d6'}
+];
+function rng(seed){ return function(){ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+
+function exposedCells(grid,N){
+  const out=new Set();
+  for(let r=0;r<N;r++){
+    for(let c=0;c<N;c++) if(grid[r][c]>=0){out.add(r*N+c);break;}
+    for(let c=N-1;c>=0;c--) if(grid[r][c]>=0){out.add(r*N+c);break;}
+  }
+  for(let c=0;c<N;c++){
+    for(let r=0;r<N;r++) if(grid[r][c]>=0){out.add(r*N+c);break;}
+    for(let r=N-1;r>=0;r--) if(grid[r][c]>=0){out.add(r*N+c);break;}
+  }
+  return out;
+}
+
+function generateLevel(level,attempt=0){
+  const R=rng(level*9973+12345+attempt*7919);
+  const ri=(a,b)=>a+Math.floor(R()*(b-a+1));
+  let N,grid,colorsHex,nCol,sizes;
+  if(level<=PHOTOS.length){
+    const P=PHOTOS[level-1]; N=P.N; grid=P.grid.map(r=>r.slice()); colorsHex=P.colors; nCol=colorsHex.length; sizes=[20,30,40,50];
+  } else {
+    const lv=level-PHOTOS.length;
+    N=Math.min(12+2*Math.floor((lv-1)/2),24);
+    nCol=Math.min(2+Math.floor(lv/2),6);
+    const idx=[...PALETTE.keys()]; for(let i=idx.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]];}
+    const cols=idx.slice(0,nCol); colorsHex=cols.map(i=>PALETTE[i].c);
+    grid=[...Array(N)].map(()=>Array(N).fill(0));
+    const half=Math.ceil(N/2);
+    const set=(r,c,v)=>{ if(r>=0&&r<N&&c>=0&&c<half){grid[r][c]=v; grid[r][N-1-c]=v;} };
+    const nShapes=Math.min(3+lv,9);
+    for(let s=0;s<nShapes;s++){
+      const v=1+((s+ri(0,nCol))%(nCol-1||1)); const col=nCol>1?v:0;
+      const type=ri(0,3), cr=ri(1,N-2), cc=ri(0,half), rad=ri(2,Math.max(3,Math.floor(N/4)));
+      for(let r=0;r<N;r++)for(let c=0;c<half;c++){
+        const dr=r-cr, dc=c-cc, d2=dr*dr+dc*dc;
+        let hit=false;
+        if(type===0) hit=d2<=rad*rad;
+        else if(type===1) hit=Math.abs(dr)<=rad&&Math.abs(dc)<=Math.max(1,rad-1);
+        else if(type===2) hit=Math.abs(dr)+Math.abs(dc)<=rad;
+        else hit=d2<=rad*rad&&d2>=(rad-1.5)*(rad-1.5);
+        if(hit) set(r,c,col);
+      }
+    }
+    sizes=lv>6?[20,30,30,40]:[10,20,20,30];
+  }
+  // construction : on simule des tours successifs pour garantir une solution
+  const cap=sizes[3], g=grid.map(r=>r.slice()); const shooters=[]; let left=N*N, guard=0;
+  while(left>0&&guard++<2000){
+    const opts=[];
+    for(let v=0;v<nCol;v++){ const t=g.map(r=>r.slice()); const res=simulateLap(t,N,v,cap); if(res.hits>0) opts.push({v,h:res.hits}); }
+    if(!opts.length) break;
+    opts.sort((x,y)=>y.h-x.h);
+    const pick=(opts.length>1&&opts[1].h>=opts[0].h*0.6&&R()<0.4)?opts[1]:opts[0];
+    const target=Math.min(pick.h,sizes[ri(0,3)]);
+    const res=simulateLap(g,N,pick.v,Math.max(target,Math.min(pick.h,5)));
+    left-=res.hits; shooters.push({color:pick.v,ammo:res.hits});
+  }
+  // fusion des petits tireurs consécutifs de même couleur
+  for(let k=shooters.length-1;k>0;k--){ if(shooters[k].color===shooters[k-1].color&&shooters[k-1].ammo+shooters[k].ammo<=cap){shooters[k-1].ammo+=shooters[k].ammo;shooters.splice(k,1);} }
+  const columns=[[],[],[],[]];
+  shooters.forEach((s,k)=>columns[k%4].push({color:s.color,ammo:s.ammo}));
+  return {N,colors:colorsHex,grid,columns};
+}
+
+// Solveur glouton pour tester la faisabilité (sans animation)
+function simulateLap(grid,N,color,ammo){
+  let hits=0;
+  const fire=(cells)=>{ for(const [r,c] of cells){ if(grid[r][c]>=0){ if(grid[r][c]===color&&ammo>0){grid[r][c]=-1;ammo--;hits++;} return; } } };
+  for(let i=0;i<N;i++){const r=N-1-i; fire([...Array(N)].map((_,c)=>[r,c]));}
+  for(let i=0;i<N;i++){const c=i; fire([...Array(N)].map((_,r)=>[r,c]));}
+  for(let i=0;i<N;i++){const r=i; fire([...Array(N)].map((_,c)=>[r,N-1-c]));}
+  for(let i=0;i<N;i++){const c=N-1-i; fire([...Array(N)].map((_,r)=>[N-1-r,c]));}
+  return {ammo,hits};
+}
+function greedySolve(L){
+  const grid=L.grid.map(r=>r.slice()), cols=L.columns.map(c=>c.map(s=>({...s}))), hold=[];
+  let total=grid.flat().filter(v=>v>=0).length, steps=0;
+  while(total>0&&steps<2000){
+    steps++;
+    const opts=[]; cols.forEach((c,i)=>{if(c.length)opts.push({src:'c',i,s:c[0]});}); hold.forEach((s,i)=>opts.push({src:'h',i,s}));
+    if(!opts.length) return false;
+    let best=null,bh=-1;
+    for(const o of opts){const g=grid.map(r=>r.slice()); const res=simulateLap(g,L.N,o.s.color,o.s.ammo); const sc=res.hits+(res.ammo===0?100:0); if(sc>bh){bh=sc;best=o;}}
+    if(best.src==='c') cols[best.i].shift(); else hold.splice(best.i,1);
+    const res=simulateLap(grid,L.N,best.s.color,best.s.ammo); total-=res.hits;
+    if(res.ammo>0){ hold.push({color:best.s.color,ammo:res.ammo}); if(hold.length>5) return false; }
+  }
+  return total===0;
+}
+function makeLevel(level){ let L; for(let a=0;a<40;a++){ L=generateLevel(level,a); if(greedySolve(L)) return L; } return L; }
+
+
+// ===== Jeu =====
+const W=400,H=740,BT=40,OFF=26,SPEED=210,SZ=32,HOLD=5,BELT_MAX=5;
+const cv=document.getElementById('c'), ctx=cv.getContext('2d');
+let scale=1,dpr=1;
+function resize(){
+  const top=document.getElementById('bar').offsetHeight;
+  scale=Math.min(window.innerWidth/W,(window.innerHeight-top-8)/H);
+  dpr=window.devicePixelRatio||1;
+  cv.style.width=W*scale+'px'; cv.style.height=H*scale+'px';
+  cv.width=Math.round(W*scale*dpr); cv.height=Math.round(H*scale*dpr);
+}
+window.addEventListener('resize',resize);
+
+let level=1; try{ level=parseInt(localStorage.getItem('pixelloop_level'))||1; }catch(e){}
+let L,N,G,cs,gx,gy,LP,SEG,grid,colors,columns,hold,belt,pending,bullets,particles,remaining,state,flash=0,beltT=0,endTimer=0;
+
+function start(lv){
+  level=lv; try{localStorage.setItem('pixelloop_level',level);}catch(e){}
+  L=makeLevel(level); N=L.N; colors=L.colors;
+  G=288; cs=G/N; gx=(W-G)/2; gy=10+BT+6;
+  SEG=G+Math.PI/2*OFF; LP=4*SEG;
+  grid=L.grid.map(r=>r.slice());
+  columns=L.columns.map(c=>c.map(s=>({...s})));
+  hold=Array(HOLD).fill(null); belt=[]; pending=[]; bullets=[]; particles=[];
+  remaining=grid.flat().filter(v=>v>=0).length; state='play'; endTimer=0;
+  document.getElementById('lvl').textContent='Niveau '+level;
+  document.getElementById('ov').style.display='none';
+}
+
+function posAt(s){
+  const k=Math.min(3,Math.floor(s/SEG)), u=s-k*SEG;
+  if(u<G){
+    if(k===0) return {x:gx-OFF,y:gy+G-u};
+    if(k===1) return {x:gx+u,y:gy-OFF};
+    if(k===2) return {x:gx+G+OFF,y:gy+u};
+    return {x:gx+G-u,y:gy+G+OFF};
+  }
+  const f=(u-G)/OFF, C=[[gx,gy,Math.PI],[gx+G,gy,-Math.PI/2],[gx+G,gy+G,0],[gx,gy+G,Math.PI/2]][k];
+  return {x:C[0]+OFF*Math.cos(C[2]+f),y:C[1]+OFF*Math.sin(C[2]+f)};
+}
+function lineCells(k,i){
+  const a=[];
+  for(let j=0;j<N;j++){
+    if(k===0) a.push([N-1-i,j]); else if(k===1) a.push([j,i]);
+    else if(k===2) a.push([i,N-1-j]); else a.push([N-1-j,N-1-i]);
+  }
+  return a;
+}
+function fire(sh,k,i){
+  for(const [r,c] of lineCells(k,i)){
+    const v=grid[r][c];
+    if(v>=0){
+      if(v===sh.color&&sh.ammo>0){
+        grid[r][c]=-2-v; sh.ammo--; remaining--;
+        const p=posAt(sh.s), tx=gx+(c+.5)*cs, ty=gy+(r+.5)*cs;
+        bullets.push({x0:p.x,y0:p.y,x1:tx,y1:ty,t:0,dur:Math.max(.05,Math.hypot(tx-p.x,ty-p.y)/1300),r,c,v});
+        sound();
+      }
+      return;
+    }
+  }
+}
+function launch(sh){
+  if(state!=='play') return false;
+  if(belt.length+pending.length>=BELT_MAX){flash=.5;return false;}
+  pending.push({color:sh.color,ammo:sh.ammo,s:0,bump:0}); return true;
+}
+
+function update(dt){
+  beltT+=dt; flash=Math.max(0,flash-dt);
+  if(state==='play'&&pending.length&&belt.every(b=>b.s>SZ+6)) belt.push(pending.shift());
+  for(const b of belt){
+    const s0=b.s, s1=s0+SPEED*dt; b.s=s1; b.bump=Math.max(0,b.bump-dt*4);
+    for(let k=0;k<4;k++)for(let i=0;i<N;i++){
+      const sc=k*SEG+(i+.5)*cs;
+      if(sc>s0&&sc<=s1&&b.ammo>0){const a=b.ammo; fire(b,k,i); if(b.ammo<a) b.bump=1;}
+    }
+  }
+  for(let j=belt.length-1;j>=0;j--){
+    const b=belt[j];
+    if(b.ammo===0){ const p=posAt(b.s); burst(p.x,p.y,colors[b.color],14,SZ/2); belt.splice(j,1); continue; }
+    if(b.s>=LP){
+      belt.splice(j,1);
+      const slot=hold.indexOf(null);
+      if(slot<0){ if(state==='play'){state='lose';endTimer=.6;} }
+      else hold[slot]={color:b.color,ammo:b.ammo};
+    }
+  }
+  for(let j=bullets.length-1;j>=0;j--){
+    const u=bullets[j]; u.t+=dt;
+    if(u.t>=u.dur){ grid[u.r][u.c]=-1; burst(gx+(u.c+.5)*cs,gy+(u.r+.5)*cs,colors[u.v],4,cs); bullets.splice(j,1); }
+  }
+  for(let j=particles.length-1;j>=0;j--){const p=particles[j];p.t-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=500*dt;if(p.t<=0)particles.splice(j,1);}
+  if(state==='play'&&remaining===0&&!bullets.length){state='win';endTimer=.7;}
+  if(endTimer>0){endTimer-=dt;if(endTimer<=0)showEnd();}
+}
+function burst(x,y,col,n,sp){for(let i=0;i<n;i++){const a=Math.random()*6.28,v=40+Math.random()*sp*6;particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-60,t:.35+Math.random()*.3,col,s:2+Math.random()*3});}}
+
+// ----- Dessin -----
+function rr(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r);}
+function shade(hex,f){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;const t=f<0?0:255,p=Math.abs(f);r=Math.round((t-r)*p+r);g=Math.round((t-g)*p+g);b=Math.round((t-b)*p+b);return `rgb(${r},${g},${b})`;}
+function drawShooter(x,y,size,ci,ammo,alpha=1,bump=0){
+  const col=colors[ci], s=size*(1+bump*.12);
+  ctx.save(); ctx.globalAlpha=alpha; ctx.translate(x,y);
+  ctx.fillStyle='rgba(0,0,0,.25)'; rr(-s*.45,-s*.38,s*.9,s*.9,s*.32); ctx.fill();
+  const g=ctx.createLinearGradient(0,-s/2,0,s/2); g.addColorStop(0,shade(col,.25)); g.addColorStop(1,shade(col,-.25));
+  ctx.fillStyle=g; rr(-s*.45,-s*.46,s*.9,s*.86,s*.32); ctx.fill();
+  ctx.strokeStyle=shade(col,-.45); ctx.lineWidth=Math.max(1.5,s*.05); ctx.stroke();
+  // petites oreilles
+  ctx.fillStyle=shade(col,-.1);
+  ctx.beginPath(); ctx.arc(-s*.28,-s*.44,s*.11,0,7); ctx.arc(s*.28,-s*.44,s*.11,0,7); ctx.fill();
+  // yeux
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(-s*.16,-s*.18,s*.09,0,7); ctx.arc(s*.16,-s*.18,s*.09,0,7); ctx.fill();
+  ctx.fillStyle='#222'; ctx.beginPath(); ctx.arc(-s*.15,-s*.17,s*.045,0,7); ctx.arc(s*.17,-s*.17,s*.045,0,7); ctx.fill();
+  // munitions
+  ctx.font=`900 ${Math.round(s*.4)}px system-ui,sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.lineWidth=s*.1; ctx.strokeStyle='rgba(0,0,0,.65)'; ctx.strokeText(ammo,0,s*.15);
+  ctx.fillStyle='#fff'; ctx.fillText(ammo,0,s*.15);
+  ctx.restore();
+}
+function draw(){
+  ctx.setTransform(scale*dpr,0,0,scale*dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+  // tapis
+  const bx=gx-OFF,by=gy-OFF,bw=G+2*OFF;
+  ctx.lineWidth=BT+8; ctx.strokeStyle='#5b6372'; rr(bx,by,bw,bw,OFF); ctx.stroke();
+  ctx.lineWidth=BT; ctx.strokeStyle='#cfd5df'; rr(bx,by,bw,bw,OFF); ctx.stroke();
+  ctx.save(); ctx.setLineDash([3,11]); ctx.lineDashOffset=-beltT*SPEED; ctx.lineWidth=BT-10; ctx.strokeStyle='#b9c0cc'; rr(bx,by,bw,bw,OFF); ctx.stroke(); ctx.restore();
+  // fond de l'image
+  ctx.fillStyle='#24242c'; rr(gx-4,gy-4,G+8,G+8,6); ctx.fill();
+  const photo=level<=PHOTOS.length, pad=photo?.4:Math.max(.6,cs*.08), rad=photo?cs*.2:cs*.28;
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    let v=grid[r][c]; if(v===-1) continue; if(v<-1) v=-2-v;
+    const x=gx+c*cs,y=gy+r*cs;
+    ctx.fillStyle=colors[v]; rr(x+pad,y+pad,cs-2*pad,cs-2*pad,rad); ctx.fill();
+    if(level>PHOTOS.length){ctx.fillStyle='rgba(255,255,255,.28)'; ctx.beginPath(); ctx.arc(x+cs*.36,y+cs*.34,cs*.14,0,7); ctx.fill();}
+  }
+  // balles
+  for(const u of bullets){const f=u.t/u.dur;const x=u.x0+(u.x1-u.x0)*f,y=u.y0+(u.y1-u.y0)*f;ctx.fillStyle=colors[u.v];ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(x,y,3.5,0,7);ctx.fill();ctx.stroke();}
+  // tireurs sur le tapis
+  for(const b of belt){const p=posAt(b.s);drawShooter(p.x,p.y,SZ,b.color,b.ammo,1,b.bump);}
+  // particules
+  for(const p of particles){ctx.globalAlpha=Math.min(1,p.t*3);ctx.fillStyle=p.col;ctx.fillRect(p.x-p.s/2,p.y-p.s/2,p.s,p.s);} ctx.globalAlpha=1;
+  // compteur tapis
+  const used=belt.length+pending.length;
+  ctx.font='800 17px system-ui,sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle';
+  ctx.lineWidth=4; ctx.strokeStyle='#1d2030'; ctx.strokeText(`Tapis ${used}/${BELT_MAX}`,14,412);
+  ctx.fillStyle=flash>0?'#ff5a5a':'#fff'; ctx.fillText(`Tapis ${used}/${BELT_MAX}`,14,412);
+  ctx.textAlign='right'; const pct=Math.round(100*(1-remaining/(N*N)));
+  ctx.strokeText(pct+'%',386,412); ctx.fillStyle='#fff'; ctx.fillText(pct+'%',386,412);
+  // zone d'attente
+  for(let i=0;i<HOLD;i++){
+    const x=24+i*72,y=428;
+    ctx.fillStyle='#3a3f55'; rr(x,y,64,60,12); ctx.fill();
+    ctx.strokeStyle='#4d536d'; ctx.lineWidth=2; ctx.stroke();
+    if(hold[i]) drawShooter(x+32,y+31,48,hold[i].color,hold[i].ammo);
+  }
+  // colonnes
+  for(let j=0;j<4;j++){
+    const cx=62+j*92, col=columns[j];
+    for(let k=Math.min(col.length,3)-1;k>=0;k--){
+      const y=548+k*66; drawShooter(cx,y,k===0?60:50,col[k].color,col[k].ammo,k===0?1:.5);
+    }
+    if(col.length>3){ctx.fillStyle='rgba(255,255,255,.6)';ctx.font='700 12px system-ui';ctx.textAlign='center';ctx.fillText('+'+(col.length-3),cx,730);}
+  }
+}
+
+// ----- Entrées -----
+cv.addEventListener('pointerdown',e=>{
+  unlockAudio();
+  const rc=cv.getBoundingClientRect(), x=(e.clientX-rc.left)/scale, y=(e.clientY-rc.top)/scale;
+  for(let i=0;i<HOLD;i++){const hx=24+i*72; if(x>=hx&&x<=hx+64&&y>=428&&y<=488&&hold[i]){ if(launch(hold[i])) hold[i]=null; return; }}
+  for(let j=0;j<4;j++){const cx=62+j*92; if(Math.abs(x-cx)<44&&y>=508&&y<=588&&columns[j].length){ if(launch(columns[j][0])) columns[j].shift(); return; }}
+});
+function showEnd(){
+  const ov=document.getElementById('ov'); ov.style.display='flex';
+  if(state==='win'){ document.getElementById('t').textContent='Bravo !'; document.getElementById('m').textContent=`Niveau ${level} terminé`; document.getElementById('btn').textContent='Niveau suivant'; }
+  else { document.getElementById('t').textContent='Tapis bloqué !'; document.getElementById('m').textContent="Plus de place dans la zone d'attente."; document.getElementById('btn').textContent='Réessayer'; }
+}
+document.getElementById('btn').onclick=()=>start(state==='win'?level+1:level);
+document.getElementById('rst').onclick=()=>start(level);
+document.getElementById('snd').onclick=e=>{muted=!muted;e.target.textContent=muted?'🔇':'🔊';};
+
+// ----- Son -----
+let ac=null,muted=false,lastS=0;
+function unlockAudio(){try{if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}
+function sound(){ if(!ac||muted)return; const t=ac.currentTime; if(t-lastS<.035)return; lastS=t;
+  try{const o=ac.createOscillator(),g=ac.createGain();o.type='square';o.frequency.setValueAtTime(520+Math.random()*260,t);o.frequency.exponentialRampToValueAtTime(220,t+.07);g.gain.setValueAtTime(.05,t);g.gain.exponentialRampToValueAtTime(.001,t+.08);o.connect(g).connect(ac.destination);o.start(t);o.stop(t+.09);}catch(e){} }
+
+let last=performance.now();
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;update(dt);draw();requestAnimationFrame(loop);}
+resize(); start(level); requestAnimationFrame(loop);
+
+</script>
+</body>
+</html>
